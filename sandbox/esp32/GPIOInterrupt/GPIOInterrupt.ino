@@ -1,4 +1,6 @@
+#include <chrono>
 #include <Arduino.h>
+#include <ezButton.h>
 
 struct Button {
     const uint8_t PIN;
@@ -21,6 +23,7 @@ void ARDUINO_ISR_ATTR isr() {
 }
 
 void setup() {
+    auto start = std::chrono::steady_clock::now();
     Serial.begin(115200);
     pinMode(button1.PIN, INPUT_PULLUP);
     attachInterruptArg(button1.PIN, isr, &button1, FALLING);

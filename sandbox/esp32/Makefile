@@ -1,13 +1,18 @@
-gpiointerrupt: gpiointerrupt-upload
-
 GPIOInterrupt/GPIOInterrupt.ino.elf: GPIOInterrupt/GPIOInterrupt.ino
 	arduino-cli compile -vb esp32:esp32:adafruit_feather_esp32s3_tft --output-dir GPIOInterrupt GPIOInterrupt
 
 gpiointerrupt-upload: GPIOInterrupt/GPIOInterrupt.ino.elf 
 	arduino-cli upload -vb esp32:esp32:adafruit_feather_esp32s3_tft -p /dev/cu.usbmodem14501 GPIOInterrupt
 
+with-gcc:
+	gcc \
+		-I ~/Library/Arduino15/packages/esp32/hardware/esp32/2.0.6/cores/esp32 \
+		-I ~/Library/Arduino15/packages/esp32/hardware/esp32/2.0.6/tools/sdk/esp32s3/include/freertos/include \
+		-I ~/Library/Arduino15/packages/esp32/hardware/esp32/2.0.6/tools/sdk/esp32s3/include/freertos/include/esp_additions/freertos \
+		GPIOInterrupt/GPIOInterrupt.cpp
+
 clean:
-	rm \
+	-rm \
 GPIOInterrupt/GPIOInterrupt.ino.bin \
 GPIOInterrupt/GPIOInterrupt.ino.bootloader.bin \
 GPIOInterrupt/GPIOInterrupt.ino.elf \
