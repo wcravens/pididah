@@ -1,6 +1,6 @@
 #include <chrono>
 #include <Arduino.h>
-#include <ezButton.h>
+
 
 struct Button {
     const uint8_t PIN;
@@ -9,7 +9,7 @@ struct Button {
 };
 
 Button button1 = {5, 0, false};
-Button button2 = {6, 0, false};
+Button button2 = {11, 0, false};
 
 void ARDUINO_ISR_ATTR isr(void* arg) {
     Button* s = static_cast<Button*>(arg);
