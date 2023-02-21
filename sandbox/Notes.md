@@ -31,4 +31,17 @@ queues](https://opensource.com/article/19/4/interprocess-communication-linux-cha
    arduinio-cli core install esp32:esp32
 ```
 
-       
+[Fix ESP32-S3 cannot reset to bootrom when using USB OTG](https://github.com/espressif/arduino-esp32/pull/7828)
+
+[ESP32Console](https://github.com/jbtronics/ESP32Console)
+
+**Debounce**
+
+[Designing an RC Debounce circuit](https://mayaposch.wordpress.com/2018/06/26/designing-an-rc-debounce-circuit/)
+
+[CW Key Debouncing](https://www.hvoigt.net/posts/key-debounce/)
+
+[EMBED WITH ELLIOT: DEBOUNCE YOUR NOISY BUTTONS, PART I](https://hackaday.com/2015/12/09/embed-with-elliot-debounce-your-noisy-buttons-part-i/)
+
+[State Machine Design Patterns](https://medium.datadriveninvestor.com/state-machine-design-pattern-why-how-example-through-spring-state-machine-part-1-f13872d68c2d)
+
