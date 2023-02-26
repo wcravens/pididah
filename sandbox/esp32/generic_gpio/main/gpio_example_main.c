@@ -104,9 +104,9 @@ void app_main(void)
     gpio_isr_handler_add(GPIO_INPUT_IO_1, gpio_isr_handler, (void*) GPIO_INPUT_IO_1);
 
     //remove isr handler for gpio number.
-    gpio_isr_handler_remove(GPIO_INPUT_IO_0);
+    // gpio_isr_handler_remove(GPIO_INPUT_IO_0);
     //hook isr handler for specific gpio pin again
-    gpio_isr_handler_add(GPIO_INPUT_IO_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
+    // gpio_isr_handler_add(GPIO_INPUT_IO_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
 
     printf("Minimum free heap size: %"PRIu32" bytes\n", esp_get_minimum_free_heap_size());
 
