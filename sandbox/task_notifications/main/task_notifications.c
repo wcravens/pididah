@@ -30,7 +30,7 @@ static void paddle_isr_handler( void* arg ) {
 
 static void gpio_task_handler(void* pvParameters) {
     BaseType_t xEvent;
-    uint32_t pinNum = NULL;
+    uint32_t pinNum;
     uint32_t pinState = 0;
     uint32_t lastTick = 0;
     for(;;) {
