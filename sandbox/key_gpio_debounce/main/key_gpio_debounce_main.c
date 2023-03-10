@@ -14,7 +14,8 @@
 
 struct gpioInteruptMessage {
   gpio_num_t gpio_num;
-  int level;
+  uint32_t level;
+  TickType_t lastChangedOnTick;
 };
 
 int64_t now() {
@@ -27,10 +28,12 @@ static QueueHandle_t gpio_evt_queue = NULL;
 volatile TickType_t lastISR = 0;
 
 static void IRAM_ATTR gpio_isr_handler( void* arg ) {
-  struct gpioInteruptMessage state;
-  state.gpio_num = (gpio_num_t) arg;
-  state.level = gpio_get_level( state.gpio_num );
-  xQueueSendFromISR( gpio_evt_queue, &state, NULL );
+  gpio_num_t pinNum = *(gpio_num_t *) arg;
+  struct gpioInteruptMessage gpioState;
+  gpioState.gpio_num = pinNum;
+  gpioState.level = gpio_get_level( pinNum );
+  gpioState.lastChangedOnTick = xTaskGetTickCount();
+  xQueueSendFromISR( gpio_evt_queue, &gpioState, NULL );
 }
 
 static void gpio_task_example( void* arg ) {
@@ -38,7 +41,7 @@ static void gpio_task_example( void* arg ) {
   for(;;) {
     if ( xQueueReceive( gpio_evt_queue, &state, portMAX_DELAY ) ) {
       TickType_t nowTick = xTaskGetTickCount();
-      printf( "GPIO[%d] intr, val: %d,%lu\n", state.gpio_num, state.level, nowTick );
+      printf( "GPIO[%d] intr, level: %ld, lastChangedOnTick: %lu, currentTick: %lu\n", state.gpio_num, state.level, state.lastChangedOnTick, nowTick );
       if ( nowTick - lastISR > 10 ) {
         lastISR = nowTick;
       }
@@ -56,15 +59,20 @@ void configure_input_gpio() {
   gpio_config( &io_conf );
 }
 
+struct gpioInteruptMessage left_paddle;
+struct gpioInteruptMessage right_paddle;
+
 void setup_isr_queue(){
   gpio_evt_queue = xQueueCreate( 1, sizeof( struct gpioInteruptMessage ) );
   xTaskCreate( gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL );
   gpio_install_isr_service( ESP_INTR_FLAG_EDGE );
-  gpio_isr_handler_add( GPIO_RIGHT_PADDLE, gpio_isr_handler, (void*) GPIO_RIGHT_PADDLE );
-  gpio_isr_handler_add( GPIO_LEFT_PADDLE,  gpio_isr_handler, (void*) GPIO_LEFT_PADDLE  );
+  gpio_isr_handler_add( right_paddle.gpio_num,  gpio_isr_handler, (void*) &right_paddle.gpio_num );
+  gpio_isr_handler_add( left_paddle.gpio_num,   gpio_isr_handler, (void*) &left_paddle.gpio_num );
 }
 
 void app_main( void ) {
+  right_paddle.gpio_num = GPIO_RIGHT_PADDLE;
+  left_paddle.gpio_num = GPIO_LEFT_PADDLE;
   configure_input_gpio();
   setup_isr_queue();
 }
