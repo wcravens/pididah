@@ -17,22 +17,17 @@ static TaskHandle_t  right_paddle_task_handle;
 
 static void paddle_isr_handler( void* arg ) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    uint32_t gpioPin = (uint32_t) arg;
+    TaskHandle_t task_handle = *(TaskHandle_t*) arg;
 
-    if( gpioPin == GPIO_LEFT_PADDLE ) {
-      xTaskNotifyFromISR( left_paddle_task_handle, NULL, eNoAction, &xHigherPriorityTaskWoken );
-    } else
-    if( gpioPin == GPIO_RIGHT_PADDLE ) {
-      xTaskNotifyFromISR( right_paddle_task_handle, NULL, eNoAction, &xHigherPriorityTaskWoken );
-    }
+    xTaskNotifyFromISR( task_handle, NULL, eNoAction, &xHigherPriorityTaskWoken );
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 static void gpio_task_handler(void* pvParameters) {
-    BaseType_t xEvent;
     uint32_t pinNum = (uint32_t) pvParameters;
     uint32_t pinState = 0;
     uint32_t lastTick = 0;
+    BaseType_t xEvent;
 
     for(;;) {
       xEvent = xTaskNotifyWait( 0x00, ULONG_MAX, NULL, portMAX_DELAY );
@@ -66,8 +61,8 @@ void configure_event_management() {
 
   gpio_install_isr_service( ESP_INTR_FLAG_EDGE );
 
-  gpio_isr_handler_add( GPIO_RIGHT_PADDLE,  paddle_isr_handler, (void*) GPIO_RIGHT_PADDLE );
-  gpio_isr_handler_add( GPIO_LEFT_PADDLE,   paddle_isr_handler, (void*) GPIO_LEFT_PADDLE  );
+  gpio_isr_handler_add( GPIO_RIGHT_PADDLE,  paddle_isr_handler, (void*) &right_paddle_task_handle );
+  gpio_isr_handler_add( GPIO_LEFT_PADDLE,   paddle_isr_handler, (void*) &left_paddle_task_handle  );
 }
 
 void app_main( void ) {
