@@ -18,7 +18,6 @@ static TaskHandle_t  right_paddle_task_handle;
 static void paddle_isr_handler( void* arg ) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     TaskHandle_t task_handle = *(TaskHandle_t*) arg;
-
     xTaskNotifyFromISR( task_handle, NULL, eNoAction, &xHigherPriorityTaskWoken );
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
@@ -33,14 +32,14 @@ static void gpio_task_handler(void* pvParameters) {
       xEvent = xTaskNotifyWait( 0x00, ULONG_MAX, NULL, portMAX_DELAY );
       if( xEvent == pdPASS ) {
         TickType_t now = xTaskGetTickCount();
-        if( now - lastTick > 5 ) {
+        //if( now - lastTick > 5 ) {
           lastTick = now;
           uint32_t currentState = gpio_get_level( pinNum );
           if( currentState != pinState ) {
             pinState = currentState;
             printf( "Tick: %ld, GPIO Pin: %ld, State: %ld. \n", now, pinNum, pinState );
           }
-        }
+        //}
       }
     }
 }
@@ -56,13 +55,13 @@ void configure_input_gpio() {
 }
 
 void configure_event_management() {
-  xTaskCreate( gpio_task_handler, "left_paddle_task_handler",  2048, (void*) GPIO_LEFT_PADDLE, 10, &left_paddle_task_handle  );
+  gpio_install_isr_service( ESP_INTR_FLAG_EDGE );
+  
+  xTaskCreate( gpio_task_handler, "left_paddle_task_handler",  2048, (void*) GPIO_LEFT_PADDLE,  10,  &left_paddle_task_handle  );
   xTaskCreate( gpio_task_handler, "right_paddle_task_handler", 2048, (void*) GPIO_RIGHT_PADDLE, 10, &right_paddle_task_handle );
 
-  gpio_install_isr_service( ESP_INTR_FLAG_EDGE );
-
-  gpio_isr_handler_add( GPIO_RIGHT_PADDLE,  paddle_isr_handler, (void*) &right_paddle_task_handle );
   gpio_isr_handler_add( GPIO_LEFT_PADDLE,   paddle_isr_handler, (void*) &left_paddle_task_handle  );
+  gpio_isr_handler_add( GPIO_RIGHT_PADDLE,  paddle_isr_handler, (void*) &right_paddle_task_handle );
 }
 
 void app_main( void ) {
