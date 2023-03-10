@@ -16,8 +16,8 @@ static TaskHandle_t  left_paddle_task_handle;
 static TaskHandle_t  right_paddle_task_handle; 
 
 static void paddle_isr_handler( void* arg ) {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     TaskHandle_t task_handle = *(TaskHandle_t*) arg;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     xTaskNotifyFromISR( task_handle, NULL, eNoAction, &xHigherPriorityTaskWoken );
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
